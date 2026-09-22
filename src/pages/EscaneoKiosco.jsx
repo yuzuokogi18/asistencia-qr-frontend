@@ -116,7 +116,7 @@ export const EscaneoKiosco = () => {
   const handleKeyDown = async (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      const matricula = inputVal.trim();
+      const matricula = inputVal.trim().split('|')[0].trim();
       setInputVal('');
 
       if (!matricula || bloqueado) return;
