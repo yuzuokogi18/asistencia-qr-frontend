@@ -30,13 +30,25 @@ async function request(endpoint, options = {}) {
   }
 
   let response;
-  try {
-    response = await fetch(url, {
-      ...options,
-      headers,
-    });
-  } catch (netErr) {
-    throw new ApiError('No se pudo conectar con el servidor. Verifique que la API esté corriendo.', 0);
+  let intentos = 0;
+  const maxIntentos = 3;
+
+  while (intentos < maxIntentos) {
+    try {
+      intentos++;
+      response = await fetch(url, {
+        ...options,
+        headers,
+      });
+      break; // Petición completada con éxito
+    } catch (netErr) {
+      if (intentos < maxIntentos) {
+        // El servidor en la nube puede estar despertando (cold start), reintentar tras breve pausa
+        await new Promise((res) => setTimeout(res, 2000));
+      } else {
+        throw new ApiError('El servidor en la nube se está iniciando o no responde. Por favor, reintente en unos segundos.', 0);
+      }
+    }
   }
 
   // Manejo de expiración de sesión (401)
