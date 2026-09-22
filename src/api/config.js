@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
+  BASE_URL: import.meta.env.VITE_API_URL || 'https://asistencia-qr-backend-iw6h.onrender.com/api',
   SCHOOL_NAME: import.meta.env.VITE_SCHOOL_NAME || 'Telebachillerato Comunitario',
   SCHOOL_LEMA: import.meta.env.VITE_SCHOOL_LEMA || 'Excelencia y Compromiso Educativo',
   SCHOOL_CYCLE: import.meta.env.VITE_CYCLE_NAME || '2026-2027',
