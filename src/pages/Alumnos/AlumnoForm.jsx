@@ -16,6 +16,7 @@ import {
 import { apiClient } from '../../api/client';
 import { API_CONFIG } from '../../api/config';
 import { useToast } from '../../context/ToastContext';
+import { QRCodeSVG } from 'qrcode.react';
 
 export const AlumnoForm = () => {
   const navigate = useNavigate();
@@ -374,10 +375,12 @@ export const AlumnoForm = () => {
 
                 {formData.matricula ? (
                   <div className="inline-block p-4 bg-white border-2 border-dashed border-slate-200 rounded-xl shadow-inner">
-                    <img 
-                      src={qrImageUrl} 
-                      alt="Código QR del Alumno"
-                      className="w-40 h-40 mx-auto object-contain"
+                    <QRCodeSVG 
+                      value={formData.matricula} 
+                      size={170}
+                      level="H"
+                      includeMargin={false}
+                      className="w-44 h-44 mx-auto object-contain"
                     />
                     <p className="text-[10px] font-bold text-slate-400 tracking-widest mt-2 uppercase">
                       VÁLIDO CICLO {API_CONFIG.SCHOOL_CYCLE}

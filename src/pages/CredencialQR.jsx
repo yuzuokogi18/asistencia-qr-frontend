@@ -10,6 +10,7 @@ import {
   Calendar,
   Share2
 } from 'lucide-react';
+import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { apiClient } from '../api/client';
 import { API_CONFIG } from '../api/config';
 import { useToast } from '../context/ToastContext';
@@ -68,10 +69,6 @@ export const CredencialQR = () => {
     logoImg.crossOrigin = 'anonymous';
     logoImg.src = '/logo-telebachillerato.png';
 
-    const qrImg = new Image();
-    qrImg.crossOrigin = 'anonymous';
-    qrImg.src = qrImageUrl;
-
     const renderCard = () => {
       // Recuadro blanco para el logo oficial
       try {
@@ -127,9 +124,12 @@ export const CredencialQR = () => {
       ctx.fill();
       ctx.stroke();
 
-      // Dibujar QR
+      // Dibujar QR desde canvas local en alta resolución
       try {
-        ctx.drawImage(qrImg, 195, 290, 250, 250);
+        const qrCanvas = document.getElementById('qr-canvas-download');
+        if (qrCanvas) {
+          ctx.drawImage(qrCanvas, 195, 290, 250, 250);
+        }
       } catch (e) {}
 
       // Leyenda directa debajo del QR: Nombre y matrícula repetidos
@@ -161,16 +161,12 @@ export const CredencialQR = () => {
       link.remove();
     };
 
-    let loaded = 0;
-    const checkDone = () => {
-      loaded++;
-      if (loaded >= 2) renderCard();
-    };
-
-    logoImg.onload = checkDone;
-    logoImg.onerror = checkDone;
-    qrImg.onload = checkDone;
-    qrImg.onerror = checkDone;
+    if (logoImg.complete) {
+      renderCard();
+    } else {
+      logoImg.onload = renderCard;
+      logoImg.onerror = renderCard;
+    }
   };
 
   if (loading) {
@@ -276,19 +272,31 @@ export const CredencialQR = () => {
                 {/* Cuerpo: QR Izquierda + Datos Derecha */}
                 <div className="grid grid-cols-12 gap-4 items-center my-3">
                   {/* Código QR con Nombre Completo y Matrícula visibles */}
-                  <div className="col-span-5 flex flex-col items-center justify-center p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-1">
+                  <div className="col-span-5 flex flex-col items-center justify-center p-2.5 sm:p-3 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-1.5">
                     <p className="text-[9px] font-black uppercase text-slate-800 tracking-wider truncate w-full px-1">
                       {nombreMostrar}
                     </p>
-                    <div className="p-1.5 bg-white rounded-lg border border-slate-200 shadow-2xs">
-                      <img 
-                        src={qrImageUrl} 
-                        alt={`Código QR de ${nombreMostrar} - Matrícula ${matricula}`} 
-                        className="w-28 h-28 object-contain"
+                    <div className="p-2 bg-white rounded-xl border border-slate-200 shadow-xs flex items-center justify-center">
+                      <QRCodeSVG 
+                        value={matricula || ''} 
+                        size={144}
+                        level="H"
+                        includeMargin={false}
+                        className="w-32 h-32 sm:w-36 sm:h-36 object-contain"
+                      />
+                    </div>
+                    {/* Canvas oculto para la descarga en PNG de ultra alta resolución */}
+                    <div className="hidden" aria-hidden="true">
+                      <QRCodeCanvas
+                        id="qr-canvas-download"
+                        value={matricula || ''}
+                        size={300}
+                        level="H"
+                        includeMargin={true}
                       />
                     </div>
                     <div>
-                      <p className="text-[11px] font-mono font-black text-blue-700">
+                      <p className="text-xs font-mono font-black text-blue-700">
                         {matricula}
                       </p>
                       <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
