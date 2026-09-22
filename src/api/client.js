@@ -299,4 +299,16 @@ export const apiClient = {
     link.remove();
     window.URL.revokeObjectURL(downloadUrl);
   },
+
+  async descargarCredencialesGrupoPdf(grupoId, nombreGrupo = 'Grupo') {
+    const blob = await request(`/reportes/grupos/${grupoId}/credenciales-pdf`);
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `Credenciales_Grupo_${nombreGrupo.replace(/\s+/g, '_')}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+  },
 };

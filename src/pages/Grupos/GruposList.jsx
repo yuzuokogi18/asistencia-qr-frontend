@@ -11,7 +11,9 @@ import {
   Eye, 
   Edit, 
   Trash2, 
-  Clock 
+  Clock,
+  QrCode,
+  Loader2
 } from 'lucide-react';
 import { apiClient } from '../../api/client';
 import { useToast } from '../../context/ToastContext';
@@ -24,6 +26,7 @@ export const GruposList = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeMenuId, setActiveMenuId] = useState(null);
+  const [descargandoPdfId, setDescargandoPdfId] = useState(null);
 
   const cargarGrupos = async () => {
     try {
@@ -50,6 +53,19 @@ export const GruposList = () => {
       } catch (err) {
         error(err.message || 'No se pudo eliminar el grupo');
       }
+    }
+  };
+
+  const handleDescargarCredencialesPdf = async (grupoId, nombreGrupo) => {
+    try {
+      setDescargandoPdfId(grupoId);
+      success(`Generando PDF oficial con credenciales y códigos QR del grupo ${nombreGrupo}...`);
+      await apiClient.descargarCredencialesGrupoPdf(grupoId, nombreGrupo);
+      success(`¡Credenciales del grupo ${nombreGrupo} descargadas en PDF exitosamente!`);
+    } catch (err) {
+      error(err.message || 'Error al generar el PDF de credenciales');
+    } finally {
+      setDescargandoPdfId(null);
     }
   };
 
@@ -236,7 +252,26 @@ export const GruposList = () => {
                       </div>
                     </td>
                     <td className="py-3.5 px-4 text-right relative">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => handleDescargarCredencialesPdf(grupo.id, grupo.nombre)}
+                          disabled={descargandoPdfId === grupo.id}
+                          title="Descargar credenciales oficiales con código QR en PDF (un solo archivo para todo el grupo)"
+                          className="px-2.5 py-1.5 text-blue-700 hover:text-blue-800 bg-blue-50/80 hover:bg-blue-100 border border-blue-200/80 rounded-lg transition-colors flex items-center gap-1.5 font-bold text-[11px] disabled:opacity-50 shadow-2xs"
+                        >
+                          {descargandoPdfId === grupo.id ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
+                              <span>Generando PDF...</span>
+                            </>
+                          ) : (
+                            <>
+                              <QrCode className="w-3.5 h-3.5 text-blue-600" />
+                              <span>Credenciales PDF</span>
+                            </>
+                          )}
+                        </button>
+
                         <button
                           onClick={() => navigate(`/grupos/${grupo.id}/alumnos`)}
                           title="Ver alumnos del grupo"

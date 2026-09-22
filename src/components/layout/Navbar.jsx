@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Search, Bell, ChevronDown, User, LogOut } from 'lucide-react';
+import { Search, ChevronDown, User, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { NotificationDropdown } from './NotificationDropdown';
 
 export const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
@@ -62,11 +63,8 @@ export const Navbar = () => {
           </form>
         )}
 
-        {/* Campana de Notificaciones */}
-        <div className="relative cursor-pointer p-2 rounded-lg hover:bg-slate-100 text-slate-500">
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-        </div>
+        {/* Campana de Notificaciones Interactivas */}
+        <NotificationDropdown />
 
         {/* Badge de Usuario */}
         <div className="relative">

@@ -11,7 +11,8 @@ import {
   UserCheck, 
   AlertCircle, 
   UserX,
-  ExternalLink 
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
 import { apiClient } from '../../api/client';
 import { useToast } from '../../context/ToastContext';
@@ -25,6 +26,7 @@ export const AlumnosList = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filtroEstatus, setFiltroEstatus] = useState('todos'); // 'todos', 'activos', 'bajas'
+  const [generandoPdf, setGenerandoPdf] = useState(false);
 
   // Si viene con query string ?q= desde el navbar
   useEffect(() => {
@@ -58,6 +60,28 @@ export const AlumnosList = () => {
       } catch (err) {
         error(err.message || 'No se pudo dar de baja al alumno');
       }
+    }
+  };
+
+  const handleDescargarCredencialesPdf = async () => {
+    if (alumnos.length === 0) {
+      error('No hay alumnos para exportar credenciales');
+      return;
+    }
+
+    const primerAlumno = alumnos[0];
+    const targetGrupoId = primerAlumno?.grupo_id || primerAlumno?.grupo?.id || 1;
+    const targetGrupoNombre = primerAlumno?.grupo?.nombre || 'General';
+
+    try {
+      setGenerandoPdf(true);
+      success(`Generando PDF con credenciales y códigos QR del grupo ${targetGrupoNombre}...`);
+      await apiClient.descargarCredencialesGrupoPdf(targetGrupoId, targetGrupoNombre);
+      success(`¡Credenciales en PDF generadas exitosamente!`);
+    } catch (err) {
+      error(err.message || 'Error al generar el PDF de credenciales');
+    } finally {
+      setGenerandoPdf(false);
     }
   };
 
@@ -95,6 +119,25 @@ export const AlumnosList = () => {
         </div>
 
         <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleDescargarCredencialesPdf}
+            disabled={generandoPdf || alumnos.length === 0}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-lg shadow-xs transition-colors disabled:opacity-50"
+            title="Descargar todas las credenciales escolares con sus códigos QR en un solo archivo PDF"
+          >
+            {generandoPdf ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600" />
+                <span>Generando PDF...</span>
+              </>
+            ) : (
+              <>
+                <QrCode className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Credenciales PDF</span>
+              </>
+            )}
+          </button>
+
           <button
             onClick={() => {
               const csvData = alumnos.map(a => `${a.matricula},"${a.nombre} ${a.apellido_paterno}",${a.grupo?.nombre}`).join('\n');
