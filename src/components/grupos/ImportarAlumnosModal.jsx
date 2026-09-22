@@ -52,7 +52,7 @@ export const ImportarAlumnosModal = ({
       "20262002,Maria Fernanda,Castillo,Lopez\n" +
       "20262003,Carlos Alberto,Mendoza,Cruz\n";
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -63,11 +63,73 @@ export const ImportarAlumnosModal = ({
 
   // Normalizar encabezados (soporta variaciones con tildes, mayúsculas y espacios)
   const normalizarLlave = (k) => {
-    const limpia = k.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    if (limpia.includes('matricula') || limpia.includes('id')) return 'matricula';
-    if (limpia.includes('paterno') || limpia.includes('primer_apellido')) return 'apellido_paterno';
-    if (limpia.includes('materno') || limpia.includes('segundo_apellido')) return 'apellido_materno';
-    if (limpia === 'nombre' || limpia === 'nombres') return 'nombre';
+    if (!k || typeof k !== 'string') return '';
+    let limpia = k.replace(/^\uFEFF/, '').toLowerCase().trim();
+    limpia = limpia.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // sin acentos
+    limpia = limpia.replace(/[^a-z0-9_\s]/g, ' ').replace(/\s+/g, ' ').trim();
+
+    // 1. Apellidos PRIMERO (crítico para que 'id' dentro de apellido_paterno jamás haga match con 'id')
+    if (
+      limpia.includes('paterno') || 
+      limpia.includes('primer apellido') || 
+      limpia.includes('primer_apellido') || 
+      limpia === 'ap1' || 
+      limpia === 'ap_paterno' || 
+      limpia === 'ap paterno' ||
+      limpia === 'apellido 1' ||
+      limpia === 'apellido1'
+    ) {
+      return 'apellido_paterno';
+    }
+
+    if (
+      limpia.includes('materno') || 
+      limpia.includes('segundo apellido') || 
+      limpia.includes('segundo_apellido') || 
+      limpia === 'ap2' || 
+      limpia === 'ap_materno' || 
+      limpia === 'ap materno' ||
+      limpia === 'apellido 2' ||
+      limpia === 'apellido2'
+    ) {
+      return 'apellido_materno';
+    }
+
+    if (limpia === 'apellidos' || limpia === 'apellido') {
+      return 'apellidos_juntos';
+    }
+
+    // 2. Matrícula / Control / ID
+    // CRÍTICO: verificar límites de palabra para 'id' (\bid\b) para nunca coincidir con "apellido"
+    if (
+      limpia.includes('matricula') || 
+      limpia.includes('control') || 
+      limpia.includes('carnet') || 
+      limpia.includes('codigo') || 
+      limpia.includes('identificador') || 
+      /\bid\b/.test(limpia) || 
+      limpia.startsWith('id_') || 
+      limpia.endsWith('_id') || 
+      limpia === 'id'
+    ) {
+      return 'matricula';
+    }
+
+    // 3. Nombre
+    if (
+      limpia === 'nombre' || 
+      limpia === 'nombres' || 
+      limpia.startsWith('nombre ') || 
+      limpia.startsWith('nombres ') || 
+      limpia.includes('nombre(s)')
+    ) {
+      return 'nombre';
+    }
+
+    if (limpia.includes('completo') || limpia === 'alumno') {
+      return 'nombre_completo';
+    }
+
     return limpia;
   };
 
@@ -77,18 +139,40 @@ export const ImportarAlumnosModal = ({
 
     for (let i = 0; i < filasCrudas.length; i++) {
       const raw = filasCrudas[i];
+      if (!raw) continue;
+
       const normalizado = {};
+      const keys = Object.keys(raw);
 
       // Mapear llaves normalizadas
-      Object.keys(raw).forEach((key) => {
+      keys.forEach((key) => {
         const standardKey = normalizarLlave(key);
-        normalizado[standardKey] = raw[key] !== undefined && raw[key] !== null ? String(raw[key]).trim() : '';
+        const val = raw[key] !== undefined && raw[key] !== null ? String(raw[key]).trim() : '';
+        if (standardKey) {
+          normalizado[standardKey] = val;
+        }
       });
 
-      const matricula = normalizado.matricula || '';
-      const nombre = normalizado.nombre || '';
-      const apellido_paterno = normalizado.apellido_paterno || '';
-      const apellido_materno = normalizado.apellido_materno || '';
+      // Si viene una columna 'apellidos_juntos' y faltan paterno/materno
+      if (normalizado.apellidos_juntos && !normalizado.apellido_paterno) {
+        const partes = normalizado.apellidos_juntos.trim().split(/\s+/);
+        normalizado.apellido_paterno = partes[0] || '';
+        normalizado.apellido_materno = partes.slice(1).join(' ') || '';
+      }
+
+      const valores = keys.map(k => raw[k] !== undefined && raw[k] !== null ? String(raw[k]).trim() : '');
+      let matricula = normalizado.matricula || '';
+      let nombre = normalizado.nombre || '';
+      let apellido_paterno = normalizado.apellido_paterno || '';
+      let apellido_materno = normalizado.apellido_materno || '';
+
+      // Fallback posicional si no se reconocieron los nombres de cabecera
+      if (!matricula && !nombre && !apellido_paterno && valores.length >= 3) {
+        matricula = valores[0] || '';
+        nombre = valores[1] || '';
+        apellido_paterno = valores[2] || '';
+        apellido_materno = valores[3] || '';
+      }
 
       // Omitir filas totalmente vacías
       if (!matricula && !nombre && !apellido_paterno && !apellido_materno) {
@@ -135,7 +219,8 @@ export const ImportarAlumnosModal = ({
     if (extension === 'csv') {
       Papa.parse(file, {
         header: true,
-        skipEmptyLines: true,
+        skipEmptyLines: 'greedy',
+        transformHeader: (header) => header.replace(/^\uFEFF/, '').trim(),
         complete: (results) => {
           procesarFilasParseadas(results.data);
           setCargandoArchivo(false);
@@ -153,7 +238,7 @@ export const ImportarAlumnosModal = ({
           const workbook = XLSX.read(bstr, { type: 'binary' });
           const firstSheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[firstSheetName];
-          const data = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+          const data = XLSX.utils.sheet_to_json(worksheet, { defval: '', raw: false });
           procesarFilasParseadas(data);
         } catch (err) {
           error('Error al procesar el archivo Excel: ' + err.message);
