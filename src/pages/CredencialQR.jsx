@@ -8,7 +8,8 @@ import {
   ShieldCheck, 
   GraduationCap, 
   Calendar,
-  Share2
+  Share2,
+  User
 } from 'lucide-react';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { apiClient } from '../api/client';
@@ -96,31 +97,84 @@ export const CredencialQR = () => {
       // Nombre completo del alumno en tipografía destacada
       ctx.fillStyle = '#0F172A';
       ctx.font = '900 24px Arial, sans-serif';
-      ctx.fillText(nombreMostrar.toUpperCase(), 320, 175);
+      ctx.fillText(nombreMostrar.toUpperCase(), 320, 168);
 
       // Matrícula y Grupo visibles
       ctx.fillStyle = '#047857';
-      ctx.font = 'bold 18px monospace';
-      ctx.fillText(`MATRÍCULA: ${matricula}`, 320, 208);
+      ctx.font = 'bold 17px monospace';
+      ctx.fillText(`MATRÍCULA: ${matricula}`, 320, 198);
 
       ctx.fillStyle = '#475569';
-      ctx.font = 'bold 15px Arial, sans-serif';
-      ctx.fillText(`GRUPO: ${grupoMostrar}  •  VIGENCIA: JULIO 2027`, 320, 236);
+      ctx.font = 'bold 14px Arial, sans-serif';
+      ctx.fillText(`GRUPO: ${grupoMostrar}  •  CICLO: ${API_CONFIG.SCHOOL_CYCLE}  •  VIGENCIA: JULIO 2027`, 320, 226);
 
       // Línea divisoria
       ctx.strokeStyle = '#E2E8F0';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(60, 255);
-      ctx.lineTo(580, 255);
+      ctx.moveTo(50, 250);
+      ctx.lineTo(590, 250);
       ctx.stroke();
 
-      // Contenedor visual del QR
+      // --- 1. RECUADRO IZQUIERDO: ESPACIO PARA FOTO INFANTIL ---
+      const photoBoxX = 55;
+      const photoBoxY = 275;
+      const photoBoxW = 215;
+      const photoBoxH = 275;
+
+      ctx.fillStyle = '#F8FAFC';
+      ctx.strokeStyle = '#CBD5E1';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 6]);
+      ctx.beginPath();
+      ctx.roundRect(photoBoxX, photoBoxY, photoBoxW, photoBoxH, 12);
+      ctx.fill();
+      ctx.stroke();
+      ctx.setLineDash([]); // Restablecer línea continua
+
+      // Silueta esquemática de alumno dentro del marco de foto
+      ctx.fillStyle = '#E2E8F0';
+      // Cabeza
+      ctx.beginPath();
+      ctx.arc(photoBoxX + photoBoxW / 2, photoBoxY + 95, 36, 0, Math.PI * 2);
+      ctx.fill();
+      // Hombros
+      ctx.beginPath();
+      ctx.ellipse(photoBoxX + photoBoxW / 2, photoBoxY + 185, 65, 45, 0, Math.PI, 0, false);
+      ctx.fill();
+
+      // Texto de foto infantil
+      ctx.fillStyle = '#64748B';
+      ctx.font = 'bold 14px Arial, sans-serif';
+      ctx.fillText('ESPACIO PARA FOTO', photoBoxX + photoBoxW / 2, photoBoxY + 225);
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '11px Arial, sans-serif';
+      ctx.fillText('TAMAÑO INFANTIL (OFICIAL)', photoBoxX + photoBoxW / 2, photoBoxY + 245);
+
+      // Etiqueta de estatus debajo de la foto
+      ctx.fillStyle = '#ECFDF5';
+      ctx.strokeStyle = '#A7F3D0';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(photoBoxX, photoBoxY + photoBoxH + 15, photoBoxW, 36, 8);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#065F46';
+      ctx.font = 'bold 12px Arial, sans-serif';
+      ctx.fillText('✓ ALUMNO(A) ACTIVO(A)', photoBoxX + photoBoxW / 2, photoBoxY + photoBoxH + 38);
+
+      // --- 2. RECUADRO DERECHO: CONTENEDOR DEL CÓDIGO QR ---
+      const qrBoxX = 300;
+      const qrBoxY = 275;
+      const qrBoxW = 285;
+      const qrBoxH = 326;
+
       ctx.fillStyle = '#F8FAFC';
       ctx.strokeStyle = '#CBD5E1';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.roundRect(170, 275, 300, 320, 16);
+      ctx.roundRect(qrBoxX, qrBoxY, qrBoxW, qrBoxH, 16);
       ctx.fill();
       ctx.stroke();
 
@@ -128,28 +182,28 @@ export const CredencialQR = () => {
       try {
         const qrCanvas = document.getElementById('qr-canvas-download');
         if (qrCanvas) {
-          ctx.drawImage(qrCanvas, 195, 290, 250, 250);
+          ctx.drawImage(qrCanvas, qrBoxX + 27, qrBoxY + 18, 230, 230);
         }
       } catch (e) {}
 
-      // Leyenda directa debajo del QR: Nombre y matrícula repetidos
-      ctx.fillStyle = '#0F172A';
-      ctx.font = 'bold 13px Arial, sans-serif';
-      ctx.fillText(nombreMostrar.toUpperCase(), 320, 560);
+      // Leyenda directa debajo del QR: Matrícula y Acceso
+      ctx.fillStyle = '#1D4ED8';
+      ctx.font = 'bold 17px monospace';
+      ctx.fillText(matricula, qrBoxX + qrBoxW / 2, qrBoxY + 280);
 
-      ctx.fillStyle = '#047857';
-      ctx.font = 'bold 15px monospace';
-      ctx.fillText(matricula, 320, 580);
+      ctx.fillStyle = '#0F172A';
+      ctx.font = 'bold 12px Arial, sans-serif';
+      ctx.fillText('CÓDIGO OFICIAL DE ACCESO', qrBoxX + qrBoxW / 2, qrBoxY + 304);
 
       // Pie de credencial
       ctx.fillStyle = '#64748B';
       ctx.font = '12px Arial, sans-serif';
-      ctx.fillText('Presente esta credencial ante el lector de códigos de asistencia.', 320, 680);
-      ctx.fillText('El código QR es exclusivo e intransferible para el registro escolar.', 320, 705);
+      ctx.fillText('Presente esta credencial ante el lector de códigos de asistencia escolar.', 320, 680);
+      ctx.fillText('El código QR es exclusivo e intransferible para el registro de entrada y salida.', 320, 705);
 
-      ctx.font = '10px Arial, sans-serif';
+      ctx.font = 'bold 10px Arial, sans-serif';
       ctx.fillStyle = '#94A3B8';
-      ctx.fillText('DOCUMENTO OFICIAL VALIDADOR DEL ALUMNO', 320, 755);
+      ctx.fillText('DOCUMENTO OFICIAL VALIDADOR DEL ALUMNO • PREPA-QR', 320, 755);
 
       // Descargar archivo
       const dataUrl = canvas.toDataURL('image/png');
@@ -269,20 +323,94 @@ export const CredencialQR = () => {
                   </span>
                 </div>
 
-                {/* Cuerpo: QR Izquierda + Datos Derecha */}
-                <div className="grid grid-cols-12 gap-4 items-center my-3">
-                  {/* Código QR con Nombre Completo y Matrícula visibles */}
-                  <div className="col-span-5 flex flex-col items-center justify-center p-2.5 sm:p-3 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-1.5">
-                    <p className="text-[9px] font-black uppercase text-slate-800 tracking-wider truncate w-full px-1">
-                      {nombreMostrar}
-                    </p>
-                    <div className="p-2 bg-white rounded-xl border border-slate-200 shadow-xs flex items-center justify-center">
+                {/* Cuerpo: 3 Columnas (Foto Infantil | Datos | QR) */}
+                <div className="grid grid-cols-12 gap-3 items-center my-3">
+                  {/* 1. ESPACIO PARA FOTO INFANTIL (IZQUIERDA) */}
+                  <div className="col-span-3 flex flex-col items-center justify-center">
+                    <div className="w-full aspect-[3/4] max-h-36 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center p-2 text-center relative group">
+                      <div className="w-9 h-9 rounded-full bg-slate-200/80 flex items-center justify-center text-slate-400 mb-1 shadow-inner">
+                        <User className="w-5 h-5 text-slate-400" />
+                      </div>
+                      <span className="text-[9px] font-black uppercase text-slate-600 tracking-wider">
+                        FOTO
+                      </span>
+                      <span className="text-[7px] font-bold text-slate-400">
+                        INFANTIL
+                      </span>
+                      <span className="text-[6.5px] text-slate-400 mt-0.5">
+                        2.5 × 3.0 cm
+                      </span>
+                    </div>
+                    <div className="mt-1 px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[7.5px] font-bold text-slate-600 uppercase tracking-wider text-center w-full">
+                      ● ALUMNO(A)
+                    </div>
+                  </div>
+
+                  {/* 2. DATOS DEL ALUMNO (CENTRO) */}
+                  <div className="col-span-5 space-y-1.5 pl-1">
+                    <div>
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">
+                        NOMBRE DEL ALUMNO
+                      </p>
+                      <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase leading-snug line-clamp-2">
+                        {nombreMostrar}
+                      </h3>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-slate-100">
+                      <div>
+                        <p className="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">
+                          GRUPO
+                        </p>
+                        <p className="text-[11px] font-black text-slate-800">
+                          {grupoMostrar}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">
+                          TURNO
+                        </p>
+                        <p className="text-[11px] font-black text-slate-800 uppercase">
+                          {alumno?.grupo?.turno || 'Matutino'}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">
+                          CICLO
+                        </p>
+                        <p className="text-[11px] font-bold text-slate-700">
+                          {API_CONFIG.SCHOOL_CYCLE}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">
+                          VIGENCIA
+                        </p>
+                        <p className="text-[11px] font-bold text-blue-700">
+                          JULIO 2027
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="pt-0.5">
+                      <span className="inline-flex items-center px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-[7.5px] font-black uppercase">
+                        ✓ AUTORIZADO SEP
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 3. CÓDIGO QR DE ACCESO (DERECHA) */}
+                  <div className="col-span-4 flex flex-col items-center justify-center p-2 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-1">
+                    <div className="p-1 bg-white rounded-lg border border-slate-200 shadow-xs flex items-center justify-center">
                       <QRCodeSVG 
                         value={matricula || ''} 
-                        size={144}
+                        size={100}
                         level="H"
                         includeMargin={false}
-                        className="w-32 h-32 sm:w-36 sm:h-36 object-contain"
+                        className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
                       />
                     </div>
                     {/* Canvas oculto para la descarga en PNG de ultra alta resolución */}
@@ -296,52 +424,11 @@ export const CredencialQR = () => {
                       />
                     </div>
                     <div>
-                      <p className="text-xs font-mono font-black text-blue-700">
+                      <p className="text-[11px] font-mono font-black text-blue-700">
                         {matricula}
                       </p>
-                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
-                        Matrícula Escolar
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Datos del Alumno */}
-                  <div className="col-span-7 space-y-2 pl-2">
-                    <div>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                        NOMBRE DEL ALUMNO
-                      </p>
-                      <h3 className="text-sm font-black text-slate-900 uppercase leading-tight">
-                        {nombreMostrar}
-                      </h3>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 pt-1">
-                      <div>
-                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                          GRUPO
-                        </p>
-                        <p className="text-xs font-bold text-slate-800">
-                          {grupoMostrar}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                          CICLO
-                        </p>
-                        <p className="text-xs font-bold text-slate-800">
-                          {API_CONFIG.SCHOOL_CYCLE}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="pt-1">
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                        VIGENCIA
-                      </p>
-                      <p className="text-xs font-bold text-blue-700">
-                        JULIO 2027
+                      <p className="text-[7px] font-bold text-slate-400 uppercase tracking-wider">
+                        ACCESO ESCOLAR
                       </p>
                     </div>
                   </div>
