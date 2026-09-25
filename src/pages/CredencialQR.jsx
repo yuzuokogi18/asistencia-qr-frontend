@@ -46,25 +46,26 @@ export const CredencialQR = () => {
 
   const handleDescargarPng = () => {
     const canvas = document.createElement('canvas');
-    canvas.width = 640;
-    canvas.height = 800;
+    canvas.width = 540;
+    canvas.height = 850;
     const ctx = canvas.getContext('2d');
 
     // Fondo blanco con esquinas redondeadas
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, 640, 800);
+    ctx.fillRect(0, 0, 540, 850);
 
     // Borde exterior
     ctx.strokeStyle = '#CBD5E1';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(4, 4, 632, 792);
+    ctx.lineWidth = 3;
+    ctx.strokeRect(3, 3, 534, 844);
 
-    // Encabezado institucional
-    const grad = ctx.createLinearGradient(0, 0, 640, 0);
-    grad.addColorStop(0, '#064E3B');
-    grad.addColorStop(1, '#047857');
-    ctx.fillStyle = grad;
-    ctx.fillRect(4, 4, 632, 115);
+    // Encabezado institucional oscuro
+    ctx.fillStyle = '#0F172A';
+    ctx.fillRect(3, 3, 534, 105);
+
+    // Barra acento azul
+    ctx.fillStyle = '#2563EB';
+    ctx.fillRect(3, 104, 534, 4);
 
     const logoImg = new Image();
     logoImg.crossOrigin = 'anonymous';
@@ -75,106 +76,108 @@ export const CredencialQR = () => {
       try {
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.roundRect(25, 18, 80, 80, 10);
+        ctx.roundRect(20, 16, 74, 74, 10);
         ctx.fill();
-        ctx.drawImage(logoImg, 30, 22, 70, 72);
-      } catch (e) {
-        // Si hay error en dibujo de logo
-      }
+        ctx.drawImage(logoImg, 25, 20, 64, 66);
+      } catch (e) {}
 
       // Texto de institución
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 20px Arial, sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText('TELEBACHILLERATO COMUNITARIO', 120, 52);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 17px Arial, sans-serif';
+      ctx.fillText('TELEBACHILLERATO', 110, 42);
 
+      ctx.fillStyle = '#CBD5E1';
+      ctx.font = 'bold 14px Arial, sans-serif';
+      ctx.fillText('COMUNITARIO', 110, 64);
+
+      ctx.fillStyle = '#38BDF8';
       ctx.font = 'bold 12px Arial, sans-serif';
-      ctx.fillStyle = '#A7F3D0';
-      ctx.fillText(`CREDENCIAL ESTUDIANTIL OFICIAL • CICLO ${API_CONFIG.SCHOOL_CYCLE}`, 120, 76);
+      ctx.fillText(`CREDENCIAL • ${API_CONFIG.SCHOOL_CYCLE}`, 110, 86);
 
       ctx.textAlign = 'center';
 
-      // Nombre completo del alumno en tipografía destacada
+      // --- 1. RECUADRO PARA FOTO INFANTIL (CENTRO) ---
+      const photoW = 160;
+      const photoH = 200;
+      const photoX = (540 - photoW) / 2;
+      const photoY = 125;
+
+      ctx.fillStyle = '#F8FAFC';
+      ctx.strokeStyle = '#CBD5E1';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.roundRect(photoX, photoY, photoW, photoH, 10);
+      ctx.fill();
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Silueta esquemática
+      ctx.fillStyle = '#E2E8F0';
+      ctx.beginPath();
+      ctx.arc(270, photoY + 65, 26, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(270, photoY + 130, 48, 32, 0, Math.PI, 0, false);
+      ctx.fill();
+
+      ctx.fillStyle = '#64748B';
+      ctx.font = 'bold 13px Arial, sans-serif';
+      ctx.fillText('FOTO INFANTIL', 270, photoY + 160);
+
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '11px Arial, sans-serif';
+      ctx.fillText('2.5 × 3.0 CM', 270, photoY + 180);
+
+      // Badge activo
+      ctx.fillStyle = '#059669';
+      ctx.font = 'bold 12px Arial, sans-serif';
+      ctx.fillText('● ALUMNO(A) ACTIVO(A)', 270, photoY + photoH + 20);
+
+      // --- 2. DATOS DEL ALUMNO (CENTRO) ---
+      ctx.fillStyle = '#64748B';
+      ctx.font = 'bold 12px Arial, sans-serif';
+      ctx.fillText('NOMBRE DEL ALUMNO', 270, 375);
+
       ctx.fillStyle = '#0F172A';
-      ctx.font = '900 24px Arial, sans-serif';
-      ctx.fillText(nombreMostrar.toUpperCase(), 320, 168);
-
-      // Matrícula y Grupo visibles
-      ctx.fillStyle = '#047857';
-      ctx.font = 'bold 17px monospace';
-      ctx.fillText(`MATRÍCULA: ${matricula}`, 320, 198);
-
-      ctx.fillStyle = '#475569';
-      ctx.font = 'bold 14px Arial, sans-serif';
-      ctx.fillText(`GRUPO: ${grupoMostrar}  •  CICLO: ${API_CONFIG.SCHOOL_CYCLE}  •  VIGENCIA: JULIO 2027`, 320, 226);
+      ctx.font = '900 20px Arial, sans-serif';
+      ctx.fillText(nombreMostrar.toUpperCase(), 270, 402);
 
       // Línea divisoria
       ctx.strokeStyle = '#E2E8F0';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(50, 250);
-      ctx.lineTo(590, 250);
-      ctx.stroke();
-
-      // --- 1. RECUADRO IZQUIERDO: ESPACIO PARA FOTO INFANTIL ---
-      const photoBoxX = 55;
-      const photoBoxY = 275;
-      const photoBoxW = 215;
-      const photoBoxH = 275;
-
-      ctx.fillStyle = '#F8FAFC';
-      ctx.strokeStyle = '#CBD5E1';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([6, 6]);
-      ctx.beginPath();
-      ctx.roundRect(photoBoxX, photoBoxY, photoBoxW, photoBoxH, 12);
-      ctx.fill();
-      ctx.stroke();
-      ctx.setLineDash([]); // Restablecer línea continua
-
-      // Silueta esquemática de alumno dentro del marco de foto
-      ctx.fillStyle = '#E2E8F0';
-      // Cabeza
-      ctx.beginPath();
-      ctx.arc(photoBoxX + photoBoxW / 2, photoBoxY + 95, 36, 0, Math.PI * 2);
-      ctx.fill();
-      // Hombros
-      ctx.beginPath();
-      ctx.ellipse(photoBoxX + photoBoxW / 2, photoBoxY + 185, 65, 45, 0, Math.PI, 0, false);
-      ctx.fill();
-
-      // Texto de foto infantil
-      ctx.fillStyle = '#64748B';
-      ctx.font = 'bold 14px Arial, sans-serif';
-      ctx.fillText('ESPACIO PARA FOTO', photoBoxX + photoBoxW / 2, photoBoxY + 225);
-      ctx.fillStyle = '#94A3B8';
-      ctx.font = '11px Arial, sans-serif';
-      ctx.fillText('TAMAÑO INFANTIL (OFICIAL)', photoBoxX + photoBoxW / 2, photoBoxY + 245);
-
-      // Etiqueta de estatus debajo de la foto
-      ctx.fillStyle = '#ECFDF5';
-      ctx.strokeStyle = '#A7F3D0';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.roundRect(photoBoxX, photoBoxY + photoBoxH + 15, photoBoxW, 36, 8);
-      ctx.fill();
+      ctx.moveTo(60, 420);
+      ctx.lineTo(480, 420);
       ctx.stroke();
 
-      ctx.fillStyle = '#065F46';
+      // Matrícula
+      ctx.fillStyle = '#1D4ED8';
+      ctx.font = 'bold 19px monospace';
+      ctx.fillText(matricula, 270, 448);
+
+      // Grupo y Turno
+      ctx.fillStyle = '#334155';
+      ctx.font = 'bold 14px Arial, sans-serif';
+      ctx.fillText(`GRUPO: ${grupoMostrar}  •  ${alumno?.grupo?.turno?.toUpperCase() || 'MATUTINO'}`, 270, 474);
+
+      // Ciclo y Vigencia
+      ctx.fillStyle = '#64748B';
       ctx.font = 'bold 12px Arial, sans-serif';
-      ctx.fillText('✓ ALUMNO(A) ACTIVO(A)', photoBoxX + photoBoxW / 2, photoBoxY + photoBoxH + 38);
+      ctx.fillText(`CICLO: ${API_CONFIG.SCHOOL_CYCLE}  •  VIGENCIA: JULIO 2027`, 270, 498);
 
-      // --- 2. RECUADRO DERECHO: CONTENEDOR DEL CÓDIGO QR ---
-      const qrBoxX = 300;
-      const qrBoxY = 275;
-      const qrBoxW = 285;
-      const qrBoxH = 326;
+      // --- 3. CÓDIGO QR DE ACCESO (CENTRO) ---
+      const qrBoxW = 180;
+      const qrBoxH = 180;
+      const qrBoxX = (540 - qrBoxW) / 2;
+      const qrBoxY = 525;
 
-      ctx.fillStyle = '#F8FAFC';
-      ctx.strokeStyle = '#CBD5E1';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.strokeStyle = '#E2E8F0';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.roundRect(qrBoxX, qrBoxY, qrBoxW, qrBoxH, 16);
+      ctx.roundRect(qrBoxX, qrBoxY, qrBoxW, qrBoxH, 12);
       ctx.fill();
       ctx.stroke();
 
@@ -182,34 +185,37 @@ export const CredencialQR = () => {
       try {
         const qrCanvas = document.getElementById('qr-canvas-download');
         if (qrCanvas) {
-          ctx.drawImage(qrCanvas, qrBoxX + 27, qrBoxY + 18, 230, 230);
+          ctx.drawImage(qrCanvas, qrBoxX + 12, qrBoxY + 12, 156, 156);
         }
       } catch (e) {}
 
-      // Leyenda directa debajo del QR: Matrícula y Acceso
-      ctx.fillStyle = '#1D4ED8';
-      ctx.font = 'bold 17px monospace';
-      ctx.fillText(matricula, qrBoxX + qrBoxW / 2, qrBoxY + 280);
-
-      ctx.fillStyle = '#0F172A';
-      ctx.font = 'bold 12px Arial, sans-serif';
-      ctx.fillText('CÓDIGO OFICIAL DE ACCESO', qrBoxX + qrBoxW / 2, qrBoxY + 304);
-
-      // Pie de credencial
+      // Leyenda QR
       ctx.fillStyle = '#64748B';
-      ctx.font = '12px Arial, sans-serif';
-      ctx.fillText('Presente esta credencial ante el lector de códigos de asistencia escolar.', 320, 680);
-      ctx.fillText('El código QR es exclusivo e intransferible para el registro de entrada y salida.', 320, 705);
+      ctx.font = 'bold 12px Arial, sans-serif';
+      ctx.fillText('ACCESO ESCOLAR PREPA-QR', 270, 730);
 
-      ctx.font = 'bold 10px Arial, sans-serif';
-      ctx.fillStyle = '#94A3B8';
-      ctx.fillText('DOCUMENTO OFICIAL VALIDADOR DEL ALUMNO • PREPA-QR', 320, 755);
+      // Sello oficial
+      ctx.fillStyle = '#ECFDF5';
+      ctx.strokeStyle = '#A7F3D0';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(170, 748, 200, 34, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#065F46';
+      ctx.font = 'bold 13px Arial, sans-serif';
+      ctx.fillText('✓ OFICIAL AUTORIZADO', 270, 770);
+
+      // Barra inferior acento
+      ctx.fillStyle = '#2563EB';
+      ctx.fillRect(3, 842, 534, 5);
 
       // Descargar archivo
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = dataUrl;
-      link.download = `Credencial_QR_${matricula}_${nombreMostrar.replace(/\s+/g, '_')}.png`;
+      link.download = `Credencial_Vertical_54x85mm_${matricula}_${nombreMostrar.replace(/\s+/g, '_')}.png`;
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -289,162 +295,121 @@ export const CredencialQR = () => {
               </span>
             </div>
 
-            {/* TARJETA CREDENCIAL HORIZONTAL IMPRIMIBLE */}
+            {/* TARJETA CREDENCIAL VERTICAL (54 × 85 mm - Indra IND-0391) */}
             <div 
               id="credencial-imprimible" 
-              className="w-full max-w-xl mx-auto bg-white rounded-2xl border-2 border-slate-300 shadow-lg overflow-hidden flex relative"
-              style={{ minHeight: '260px' }}
+              className="w-full max-w-[310px] mx-auto bg-white rounded-2xl border-2 border-slate-300 shadow-xl overflow-hidden flex flex-col relative"
+              style={{ minHeight: '488px' }}
             >
-              {/* Barra lateral azul institucional */}
-              <div className="w-4 bg-gradient-to-b from-blue-700 to-indigo-800 shrink-0" />
-
-              {/* Contenido de la credencial */}
-              <div className="flex-1 p-6 flex flex-col justify-between">
-                
-                {/* Header de la credencial */}
-                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                  <div className="flex items-center gap-2.5">
+              {/* Encabezado oscuro institucional */}
+              <div className="bg-slate-900 px-4 py-3 border-b-2 border-blue-600 flex items-center justify-between text-white shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-lg bg-white p-1 flex items-center justify-center shrink-0">
                     <img 
                       src="/logo-telebachillerato.png" 
                       alt="Telebachillerato Comunitario" 
-                      className="h-10 w-auto object-contain"
+                      className="w-full h-full object-contain"
                     />
-                    <div>
-                      <p className="text-[9px] font-bold text-slate-400 tracking-wider uppercase">
-                        INSTITUCIÓN EDUCATIVA
-                      </p>
-                      <p className="text-xs font-black text-slate-900 tracking-tight">
-                        {API_CONFIG.SCHOOL_NAME}
-                      </p>
-                    </div>
                   </div>
-                  <span className="px-2 py-0.5 bg-blue-50 text-blue-700 font-extrabold text-[9px] rounded-md border border-blue-200 tracking-wider uppercase">
-                    CREDENCIAL OFICIAL
+                  <div className="text-left">
+                    <p className="text-[10px] font-black tracking-tight leading-none text-white">
+                      TELEBACHILLERATO
+                    </p>
+                    <p className="text-[8.5px] font-medium text-slate-300 leading-tight">
+                      COMUNITARIO
+                    </p>
+                    <p className="text-[7.5px] font-bold text-sky-400">
+                      CICLO {API_CONFIG.SCHOOL_CYCLE}
+                    </p>
+                  </div>
+                </div>
+                <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-300 font-extrabold text-[8px] rounded border border-blue-400/30 uppercase">
+                  OFICIAL
+                </span>
+              </div>
+
+              {/* Cuerpo Vertical de la Credencial */}
+              <div className="flex-1 p-3.5 flex flex-col items-center justify-between space-y-2.5 text-center">
+                
+                {/* 1. Recuadro para Foto Infantil */}
+                <div className="flex flex-col items-center">
+                  <div className="w-24 h-28 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center p-1.5 relative shadow-inner">
+                    <div className="w-8 h-8 rounded-full bg-slate-200/90 flex items-center justify-center text-slate-400 mb-1">
+                      <User className="w-5 h-5 text-slate-400" />
+                    </div>
+                    <span className="text-[8.5px] font-black uppercase text-slate-600 tracking-wider">
+                      FOTO INFANTIL
+                    </span>
+                    <span className="text-[7px] text-slate-400 font-medium">
+                      2.5 × 3.0 cm
+                    </span>
+                  </div>
+                  <span className="text-[7.5px] font-bold text-emerald-600 mt-1 uppercase tracking-wider">
+                    ● ALUMNO(A) ACTIVO(A)
                   </span>
                 </div>
 
-                {/* Cuerpo: 3 Columnas (Foto Infantil | Datos | QR) */}
-                <div className="grid grid-cols-12 gap-3 items-center my-3">
-                  {/* 1. ESPACIO PARA FOTO INFANTIL (IZQUIERDA) */}
-                  <div className="col-span-3 flex flex-col items-center justify-center">
-                    <div className="w-full aspect-[3/4] max-h-36 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center p-2 text-center relative group">
-                      <div className="w-9 h-9 rounded-full bg-slate-200/80 flex items-center justify-center text-slate-400 mb-1 shadow-inner">
-                        <User className="w-5 h-5 text-slate-400" />
-                      </div>
-                      <span className="text-[9px] font-black uppercase text-slate-600 tracking-wider">
-                        FOTO
-                      </span>
-                      <span className="text-[7px] font-bold text-slate-400">
-                        INFANTIL
-                      </span>
-                      <span className="text-[6.5px] text-slate-400 mt-0.5">
-                        2.5 × 3.0 cm
-                      </span>
-                    </div>
-                    <div className="mt-1 px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[7.5px] font-bold text-slate-600 uppercase tracking-wider text-center w-full">
-                      ● ALUMNO(A)
-                    </div>
-                  </div>
-
-                  {/* 2. DATOS DEL ALUMNO (CENTRO) */}
-                  <div className="col-span-5 space-y-1.5 pl-1">
-                    <div>
-                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">
-                        NOMBRE DEL ALUMNO
-                      </p>
-                      <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase leading-snug line-clamp-2">
-                        {nombreMostrar}
-                      </h3>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-slate-100">
-                      <div>
-                        <p className="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">
-                          GRUPO
-                        </p>
-                        <p className="text-[11px] font-black text-slate-800">
-                          {grupoMostrar}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">
-                          TURNO
-                        </p>
-                        <p className="text-[11px] font-black text-slate-800 uppercase">
-                          {alumno?.grupo?.turno || 'Matutino'}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">
-                          CICLO
-                        </p>
-                        <p className="text-[11px] font-bold text-slate-700">
-                          {API_CONFIG.SCHOOL_CYCLE}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">
-                          VIGENCIA
-                        </p>
-                        <p className="text-[11px] font-bold text-blue-700">
-                          JULIO 2027
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="pt-0.5">
-                      <span className="inline-flex items-center px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-[7.5px] font-black uppercase">
-                        ✓ AUTORIZADO SEP
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* 3. CÓDIGO QR DE ACCESO (DERECHA) */}
-                  <div className="col-span-4 flex flex-col items-center justify-center p-2 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-1">
-                    <div className="p-1 bg-white rounded-lg border border-slate-200 shadow-xs flex items-center justify-center">
-                      <QRCodeSVG 
-                        value={matricula || ''} 
-                        size={100}
-                        level="H"
-                        includeMargin={false}
-                        className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
-                      />
-                    </div>
-                    {/* Canvas oculto para la descarga en PNG de ultra alta resolución */}
-                    <div className="hidden" aria-hidden="true">
-                      <QRCodeCanvas
-                        id="qr-canvas-download"
-                        value={matricula || ''}
-                        size={300}
-                        level="H"
-                        includeMargin={true}
-                      />
-                    </div>
-                    <div>
-                      <p className="text-[11px] font-mono font-black text-blue-700">
-                        {matricula}
-                      </p>
-                      <p className="text-[7px] font-bold text-slate-400 uppercase tracking-wider">
-                        ACCESO ESCOLAR
-                      </p>
-                    </div>
-                  </div>
+                {/* 2. Datos del Estudiante */}
+                <div className="w-full space-y-1">
+                  <p className="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">
+                    NOMBRE DEL ALUMNO
+                  </p>
+                  <h3 className="text-xs font-black text-slate-900 uppercase leading-snug line-clamp-2 px-1">
+                    {nombreMostrar}
+                  </h3>
+                  <div className="w-4/5 mx-auto border-t border-slate-200 my-1" />
+                  <p className="text-xs font-mono font-black text-blue-700">
+                    {matricula}
+                  </p>
+                  <p className="text-[9.5px] font-bold text-slate-700">
+                    GRUPO: {grupoMostrar}  •  {alumno?.grupo?.turno?.toUpperCase() || 'MATUTINO'}
+                  </p>
+                  <p className="text-[8px] text-slate-500 font-medium">
+                    VIGENCIA: JULIO 2027
+                  </p>
                 </div>
 
-                {/* Footer de la credencial */}
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[9px] text-slate-400">
-                  <span>Válida para el registro automatizado de asistencia escolar</span>
-                  <span className="font-mono font-bold text-slate-500">AUTORIZADO</span>
+                {/* 3. Código QR de Acceso */}
+                <div className="flex flex-col items-center">
+                  <div className="p-1.5 bg-white rounded-xl border border-slate-200 shadow-xs flex items-center justify-center">
+                    <QRCodeSVG 
+                      value={matricula || ''} 
+                      size={96}
+                      level="H"
+                      includeMargin={false}
+                      className="w-24 h-24 object-contain"
+                    />
+                  </div>
+                  {/* Canvas oculto para la descarga en PNG de ultra alta resolución */}
+                  <div className="hidden" aria-hidden="true">
+                    <QRCodeCanvas
+                      id="qr-canvas-download"
+                      value={matricula || ''}
+                      size={300}
+                      level="H"
+                      includeMargin={true}
+                    />
+                  </div>
+                  <p className="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider mt-1">
+                    ACCESO ESCOLAR PREPA-QR
+                  </p>
+                </div>
+
+                {/* 4. Sello de autorización al pie */}
+                <div className="w-full pt-1 border-t border-slate-100 flex items-center justify-center">
+                  <span className="inline-flex items-center px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-[8px] font-black uppercase">
+                    ✓ OFICIAL AUTORIZADO SEP
+                  </span>
                 </div>
 
               </div>
+
+              {/* Barra inferior azul institucional */}
+              <div className="h-1.5 bg-blue-600 shrink-0" />
             </div>
 
             <p className="text-[11px] text-slate-400 text-center no-print">
-              La credencial está optimizada para impresión en formato ID-1 (85.60 x 53.98 mm). Asegúrese de imprimir a escala real (100%).
+              La credencial está optimizada para formato vertical estándar ID-1 (54 × 85 mm) compatible con portagafete Indra IND-0391. Asegúrese de imprimir a escala real (100%).
             </p>
 
             {/* Especificaciones de impresión */}
