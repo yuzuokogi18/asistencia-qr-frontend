@@ -130,11 +130,6 @@ export const CredencialQR = () => {
       ctx.font = '11px Arial, sans-serif';
       ctx.fillText('2.5 × 3.0 CM', 270, photoY + 180);
 
-      // Badge activo
-      ctx.fillStyle = '#059669';
-      ctx.font = 'bold 12px Arial, sans-serif';
-      ctx.fillText('● ALUMNO(A) ACTIVO(A)', 270, photoY + photoH + 20);
-
       // --- 2. DATOS DEL ALUMNO (CENTRO) ---
       ctx.fillStyle = '#64748B';
       ctx.font = 'bold 12px Arial, sans-serif';
@@ -168,10 +163,10 @@ export const CredencialQR = () => {
       ctx.fillText(`CICLO: ${API_CONFIG.SCHOOL_CYCLE}  •  VIGENCIA: JULIO 2027`, 270, 498);
 
       // --- 3. CÓDIGO QR DE ACCESO (CENTRO) ---
-      const qrBoxW = 180;
-      const qrBoxH = 180;
+      const qrBoxW = 190;
+      const qrBoxH = 190;
       const qrBoxX = (540 - qrBoxW) / 2;
-      const qrBoxY = 525;
+      const qrBoxY = 530;
 
       ctx.fillStyle = '#FFFFFF';
       ctx.strokeStyle = '#E2E8F0';
@@ -185,27 +180,14 @@ export const CredencialQR = () => {
       try {
         const qrCanvas = document.getElementById('qr-canvas-download');
         if (qrCanvas) {
-          ctx.drawImage(qrCanvas, qrBoxX + 12, qrBoxY + 12, 156, 156);
+          ctx.drawImage(qrCanvas, qrBoxX + 12, qrBoxY + 12, 166, 166);
         }
       } catch (e) {}
 
       // Leyenda QR
       ctx.fillStyle = '#64748B';
-      ctx.font = 'bold 12px Arial, sans-serif';
-      ctx.fillText('ACCESO ESCOLAR PREPA-QR', 270, 730);
-
-      // Sello oficial
-      ctx.fillStyle = '#ECFDF5';
-      ctx.strokeStyle = '#A7F3D0';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.roundRect(170, 748, 200, 34, 6);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = '#065F46';
       ctx.font = 'bold 13px Arial, sans-serif';
-      ctx.fillText('✓ OFICIAL AUTORIZADO', 270, 770);
+      ctx.fillText('ACCESO ESCOLAR PREPA-QR', 270, 750);
 
       // Barra inferior acento
       ctx.fillStyle = '#2563EB';
@@ -344,9 +326,6 @@ export const CredencialQR = () => {
                       2.5 × 3.0 cm
                     </span>
                   </div>
-                  <span className="text-[7.5px] font-bold text-emerald-600 mt-1 uppercase tracking-wider">
-                    ● ALUMNO(A) ACTIVO(A)
-                  </span>
                 </div>
 
                 {/* 2. Datos del Estudiante */}
@@ -365,7 +344,7 @@ export const CredencialQR = () => {
                     GRUPO: {grupoMostrar}  •  {alumno?.grupo?.turno?.toUpperCase() || 'MATUTINO'}
                   </p>
                   <p className="text-[8px] text-slate-500 font-medium">
-                    VIGENCIA: JULIO 2027
+                    CICLO: {API_CONFIG.SCHOOL_CYCLE}  •  VIGENCIA: JULIO 2027
                   </p>
                 </div>
 
@@ -374,10 +353,10 @@ export const CredencialQR = () => {
                   <div className="p-1.5 bg-white rounded-xl border border-slate-200 shadow-xs flex items-center justify-center">
                     <QRCodeSVG 
                       value={matricula || ''} 
-                      size={96}
+                      size={104}
                       level="H"
                       includeMargin={false}
-                      className="w-24 h-24 object-contain"
+                      className="w-26 h-26 object-contain"
                     />
                   </div>
                   {/* Canvas oculto para la descarga en PNG de ultra alta resolución */}
@@ -390,16 +369,9 @@ export const CredencialQR = () => {
                       includeMargin={true}
                     />
                   </div>
-                  <p className="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider mt-1">
+                  <p className="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider mt-1.5">
                     ACCESO ESCOLAR PREPA-QR
                   </p>
-                </div>
-
-                {/* 4. Sello de autorización al pie */}
-                <div className="w-full pt-1 border-t border-slate-100 flex items-center justify-center">
-                  <span className="inline-flex items-center px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-[8px] font-black uppercase">
-                    ✓ OFICIAL AUTORIZADO SEP
-                  </span>
                 </div>
 
               </div>
