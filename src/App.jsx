@@ -16,6 +16,7 @@ import { AlumnoForm } from './pages/Alumnos/AlumnoForm';
 import { CredencialQR } from './pages/CredencialQR';
 import { EscaneoKiosco } from './pages/EscaneoKiosco';
 import { AsistenciasReporte } from './pages/AsistenciasReporte';
+import { ManualSistema } from './pages/ManualSistema';
 import { NotFound } from './pages/NotFound';
 
 export function App() {
@@ -51,6 +52,10 @@ export function App() {
               {/* Reportes de Asistencias */}
               <Route path="/asistencias" element={<AsistenciasReporte />} />
               <Route path="/reportes" element={<Navigate to="/asistencias" replace />} />
+
+              {/* Manual del Sistema y Guía de Uso */}
+              <Route path="/manual" element={<ManualSistema />} />
+              <Route path="/configuracion" element={<Navigate to="/manual" replace />} />
             </Route>
 
             {/* Ruta Kiosco de Escaneo (Pantalla completa sin sidebar) */}
